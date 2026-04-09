@@ -551,7 +551,14 @@ export default function ArenaPage() {
 
   // Calculate end time
   const endTime = useMemo(() => {
-    if (!activeTest?.startedAt || !activeTest?.durationSeconds) return null
+    if (!activeTest) return null
+
+    // Prefer absolute server timestamp to avoid client/server timezone parsing drift.
+    if (activeTest.endsAtEpochMs) {
+      return new Date(Number(activeTest.endsAtEpochMs)).toISOString()
+    }
+
+    if (!activeTest.startedAt || !activeTest.durationSeconds) return null
     const start = new Date(activeTest.startedAt).getTime()
     return new Date(start + activeTest.durationSeconds * 1000).toISOString()
   }, [activeTest])
