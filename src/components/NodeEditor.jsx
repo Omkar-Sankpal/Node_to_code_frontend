@@ -473,15 +473,6 @@ const NodeEditorInner = React.forwardRef(function NodeEditorInner({ projectId, p
     return defaultEdges
   })
 
-  const safeParseMetadata = useCallback((raw) => {
-    if (!raw) return {}
-    try {
-      return JSON.parse(raw)
-    } catch {
-      return {}
-    }
-  }, [])
-
   /* ── Delete node ── */
   const deleteNode = useCallback((nodeId) => {
     userEdited.current = true
@@ -533,66 +524,59 @@ const NodeEditorInner = React.forwardRef(function NodeEditorInner({ projectId, p
     const load = async () => {
       console.log('[NodeEditor] Loading graph for', isProblem ? 'problemId=' : 'projectId=', entityId)
       setGraphLoading(true)
-      try {
-        const result = isProblem ? await loadProblemGraph(problemId) : await loadGraph(projectId)
-        console.log('[NodeEditor] loadGraph result:', result.ok, result.ok ? `${result.data?.nodes?.length} nodes, ${result.data?.edges?.length} edges` : result.error)
-        if (result.ok) {
-          const { nodes: nodeDTOs, edges: edgeDTOs, viewportX, viewportY, viewportZoom } = result.data
-          if (nodeDTOs && nodeDTOs.length > 0) {
-            const loadedNodes = nodeDTOs.map(dto => ({
+      const result = isProblem ? await loadProblemGraph(problemId) : await loadGraph(projectId)
+      console.log('[NodeEditor] loadGraph result:', result.ok, result.ok ? `${result.data?.nodes?.length} nodes, ${result.data?.edges?.length} edges` : result.error)
+      if (result.ok) {
+        const { nodes: nodeDTOs, edges: edgeDTOs, viewportX, viewportY, viewportZoom } = result.data
+        if (nodeDTOs && nodeDTOs.length > 0) {
+          const loadedNodes = nodeDTOs.map(dto => ({
+            id: dto.reactFlowId,
+            type: dto.type,
+            position: { x: dto.positionX, y: dto.positionY },
+            data: { ...JSON.parse(dto.metadata || '{}'), onUpdate: handleUpdate, onDelete: deleteNode },
+          }))
+          const loadedEdges = (edgeDTOs || []).map(dto => {
+            const meta = JSON.parse(dto.metadata || '{}')
+            return {
               id: dto.reactFlowId,
-              type: dto.type,
-              position: { x: dto.positionX, y: dto.positionY },
-              data: { ...safeParseMetadata(dto.metadata), onUpdate: handleUpdate, onDelete: deleteNode },
-            }))
-            const loadedEdges = (edgeDTOs || []).map(dto => {
-              const meta = safeParseMetadata(dto.metadata)
-              return {
-                id: dto.reactFlowId,
-                source: dto.sourceReactFlowId,
-                target: dto.targetReactFlowId,
-                type: meta.type || 'glowBezier',
-                data: { ...(meta.data || {}), onDelete: deleteEdge },
-                markerEnd: meta.markerEnd,
-                style: meta.style,
-                animated: meta.animated,
-              }
-            })
-            setNodes(loadedNodes)
-            setEdges(loadedEdges)
-            // Restore viewport if saved
-            if (viewportX != null && viewportY != null && viewportZoom != null) {
-              setViewport({ x: viewportX, y: viewportY, zoom: viewportZoom })
-              console.log('[NodeEditor] Restored viewport:', viewportX, viewportY, viewportZoom)
+              source: dto.sourceReactFlowId,
+              target: dto.targetReactFlowId,
+              type: meta.type || 'glowBezier',
+              data: { ...(meta.data || {}), onDelete: deleteEdge },
+              markerEnd: meta.markerEnd,
+              style: meta.style,
+              animated: meta.animated,
             }
-            const maxId = Math.max(...loadedNodes.map(n => parseInt(n.id) || 0), 0)
-            idRef.current = maxId + 1
-            console.log('[NodeEditor] Loaded', loadedNodes.length, 'nodes and', loadedEdges.length, 'edges from backend')
-          } else {
-            // No saved graph yet — start with defaults so user has something to work with
-            console.log('[NodeEditor] No saved graph found, using default nodes')
-            setNodes(defaultNodes.map(n => ({ ...n, data: { ...n.data, onUpdate: handleUpdate, onDelete: deleteNode } })))
-            setEdges(defaultEdges.map(e => ({ ...e, data: { ...(e.data || {}), onDelete: deleteEdge } })))
+          })
+          setNodes(loadedNodes)
+          setEdges(loadedEdges)
+          // Restore viewport if saved
+          if (viewportX != null && viewportY != null && viewportZoom != null) {
+            setViewport({ x: viewportX, y: viewportY, zoom: viewportZoom })
+            console.log('[NodeEditor] Restored viewport:', viewportX, viewportY, viewportZoom)
           }
+          const maxId = Math.max(...loadedNodes.map(n => parseInt(n.id) || 0), 0)
+          idRef.current = maxId + 1
+          console.log('[NodeEditor] Loaded', loadedNodes.length, 'nodes and', loadedEdges.length, 'edges from backend')
         } else {
-          // Load failed — fall back to defaults
-          console.warn('[NodeEditor] Load failed:', result.error, '— using default nodes')
+          // No saved graph yet — start with defaults so user has something to work with
+          console.log('[NodeEditor] No saved graph found, using default nodes')
           setNodes(defaultNodes.map(n => ({ ...n, data: { ...n.data, onUpdate: handleUpdate, onDelete: deleteNode } })))
           setEdges(defaultEdges.map(e => ({ ...e, data: { ...(e.data || {}), onDelete: deleteEdge } })))
         }
-      } catch (err) {
-        console.warn('[NodeEditor] Unexpected load error:', err)
+      } else {
+        // Load failed — fall back to defaults
+        console.warn('[NodeEditor] Load failed:', result.error, '— using default nodes')
         setNodes(defaultNodes.map(n => ({ ...n, data: { ...n.data, onUpdate: handleUpdate, onDelete: deleteNode } })))
         setEdges(defaultEdges.map(e => ({ ...e, data: { ...(e.data || {}), onDelete: deleteEdge } })))
-      } finally {
-        setGraphLoading(false)
-        hasLoaded.current = true
-        userEdited.current = false  // mark that we just loaded, no user edits yet
       }
+      setGraphLoading(false)
+      hasLoaded.current = true
+      userEdited.current = false  // mark that we just loaded, no user edits yet
     }
     load()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId, problemId, safeParseMetadata])
+  }, [projectId, problemId])
 
   /* ── Helper: get flow state from instance ── */
   const getFlowObject = useCallback(() => {

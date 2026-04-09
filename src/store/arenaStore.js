@@ -86,7 +86,7 @@ const useArenaStore = create((set, get) => ({
     }
     set({ recommendationLoading: true })
     try {
-      const res = await axios.post(`${API}/recommend`, { solvedTopics }, { timeout: 12000 })
+      const res = await axios.post(`${API}/recommend`, { solvedTopics })
       set({ recommendation: res.data, recommendationLoading: false })
       return res.data
     } catch (err) {
