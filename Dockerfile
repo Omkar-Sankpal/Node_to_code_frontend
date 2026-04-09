@@ -1,7 +1,7 @@
 FROM node:20 AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps --include=optional && npm install --no-save @rollup/rollup-linux-x64-gnu
+RUN npm ci --legacy-peer-deps --include=optional && npm install --legacy-peer-deps --no-save @rollup/rollup-linux-x64-gnu
 COPY . .
 RUN npm run build
 
