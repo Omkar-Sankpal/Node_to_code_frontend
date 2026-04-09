@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState, useEffect, useImperativeHandle } from 'react'
 import useGraphStore from '../store/graphStore'
-import ReactFlow, {
+import {
+  ReactFlow,
   Controls,
   Background,
   MiniMap,
@@ -15,8 +16,8 @@ import ReactFlow, {
   BackgroundVariant,
   ReactFlowProvider,
   useReactFlow,
-} from 'xyflow'
-import 'xyflow/dist/style.css'
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
 
 /* ════════════════════════════════════════
    CUSTOM BEZIER EDGE (glowing)
