@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 import mermaid from 'mermaid'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -68,7 +69,7 @@ export default function SystemDiagramModal({
     setRenderedSvg('')
 
     try {
-      const res = await axios.post('http://localhost:8080/api/diagrams/system', {
+      const res = await axios.post(`${API_BASE_URL}/api/diagrams/system`, {
         diagramType,
         contextType,
         title: title || '',

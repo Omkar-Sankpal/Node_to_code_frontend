@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 
-const API_BASE = 'http://localhost:8080/api/problems'
+const API_BASE = `${API_BASE_URL}/api/problems`
 
 const useProblemStore = create((set, get) => ({
   problemsList: [],

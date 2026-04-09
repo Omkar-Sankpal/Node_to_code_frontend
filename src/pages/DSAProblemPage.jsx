@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 import CodeEditor from '../components/CodeEditor'
 import NodeEditor from '../components/NodeEditor'
 import SystemDiagramModal from '../components/SystemDiagramModal'
@@ -146,7 +147,7 @@ export default function DSAProblemPage() {
     const expectedOutput = (problem.sampleOutput || '').trim()
     try {
       const payload = { languageId: Number(languageId), code: sourceCode, stdin }
-      const resp = await axios.post('http://localhost:8080/api/code/execute', payload)
+      const resp = await axios.post(`${API_BASE_URL}/api/code/execute`, payload)
       const body = resp.data
       const stdout = (body.stdout ?? '').trim()
       const stderr = body.stderr ?? ''
@@ -175,7 +176,7 @@ export default function DSAProblemPage() {
           } catch (_) {}
         } else {
           try {
-            await axios.post('http://localhost:8080/api/dsa-submissions/solve', {
+            await axios.post(`${API_BASE_URL}/api/dsa-submissions/solve`, {
               problemId: Number(id), language: language.toUpperCase(), code: sourceCode,
             }, { withCredentials: true })
           } catch (e) { console.error('Failed to mark solved:', e) }
@@ -194,7 +195,7 @@ export default function DSAProblemPage() {
     const sourceCode = mode === 'manual' ? code : nodeCode
     try {
       const payload = { languageId: Number(languageId), code: sourceCode, stdin: stdinInput || '' }
-      const resp = await axios.post('http://localhost:8080/api/code/execute', payload)
+      const resp = await axios.post(`${API_BASE_URL}/api/code/execute`, payload)
       const body = resp.data
       const stdout = body.stdout ?? ''
       const stderr = body.stderr ?? ''
@@ -218,7 +219,7 @@ export default function DSAProblemPage() {
     setSaving(true)
     setSaveStatus(null)
     try {
-      await axios.post('http://localhost:8080/api/dsa-submissions', {
+      await axios.post(`${API_BASE_URL}/api/dsa-submissions`, {
         problemId: Number(id), language: language.toUpperCase(),
         code: codeToSave ?? (mode === 'manual' ? code : nodeCode),
       })
@@ -236,7 +237,7 @@ export default function DSAProblemPage() {
     if (!id || !user) return
     if (isArena) { setCode(templates[lang] || ''); return }
     try {
-      const resp = await axios.get('http://localhost:8080/api/dsa-submissions', {
+      const resp = await axios.get(`${API_BASE_URL}/api/dsa-submissions`, {
         params: { problemId: Number(id), language: lang.toUpperCase() },
       })
       if (resp.data && resp.data.code) {
@@ -469,7 +470,7 @@ export default function DSAProblemPage() {
                   const stored = localStorage.getItem(`arena_solved_ids_${arenaTestId}`)
                   const solvedIdsArr = stored ? JSON.parse(stored) : []
                   const res = await axios.post(
-                    `http://localhost:8080/api/arena/${arenaTestId}/finish`,
+                    `${API_BASE_URL}/api/arena/${arenaTestId}/finish`,
                     { solvedProblemIds: solvedIdsArr }
                   )
                   // Clean up persisted keys

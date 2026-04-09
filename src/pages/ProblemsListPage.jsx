@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { gsap } from 'gsap'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 import {
   BookOpen, Search, Filter, CheckCircle2, Circle,
   ArrowRight, Loader2, AlertCircle, Inbox,
@@ -74,8 +75,8 @@ export default function ProblemsListPage() {
   const loading = category === 'design' ? dpLoading : dsaLoading
   const error = category === 'design' ? dpError : dsaError
 
-  const dpSolved = useSolvedSet('http://localhost:8080/api/submissions/solved')
-  const dsaSolved = useSolvedSet('http://localhost:8080/api/dsa-submissions/solved')
+  const dpSolved = useSolvedSet(`${API_BASE_URL}/api/submissions/solved`)
+  const dsaSolved = useSolvedSet(`${API_BASE_URL}/api/dsa-submissions/solved`)
   const solved = category === 'design' ? dpSolved : dsaSolved
 
   const [search, setSearch] = useState('')

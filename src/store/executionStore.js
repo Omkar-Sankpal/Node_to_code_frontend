@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 
-const API = 'http://localhost:8080/api/code/execute'
+const API = `${API_BASE_URL}/api/code/execute`
 
 const useExecutionStore = create((set) => ({
   running: false,

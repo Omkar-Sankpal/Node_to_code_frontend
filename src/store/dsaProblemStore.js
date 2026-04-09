@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 
-const API_BASE = 'http://localhost:8080/api/dsa-problems'
+const API_BASE = `${API_BASE_URL}/api/dsa-problems`
 
 const useDSAProblemStore = create((set, get) => ({
   dsaProblemsList: [],

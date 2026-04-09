@@ -1,8 +1,9 @@
 import { create } from 'zustand'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 
-const API = 'http://localhost:8080/api/projects'
-const PROBLEM_API = 'http://localhost:8080/api/problems'
+const API = `${API_BASE_URL}/api/projects`
+const PROBLEM_API = `${API_BASE_URL}/api/problems`
 
 // Shared helper — serialises a React-Flow toObject() result into the backend GraphDTO shape
 const toGraphPayload = (flowObject) => {

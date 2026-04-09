@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 import { motion, AnimatePresence } from 'framer-motion'
 import CodeEditor from '../components/CodeEditor'
 import NodeEditor from '../components/NodeEditor'
@@ -196,7 +197,7 @@ export default function ProblemPage() {
         code: sourceCode,
         stdin,
       }
-      const resp = await axios.post('http://localhost:8080/api/code/execute', payload)
+      const resp = await axios.post(`${API_BASE_URL}/api/code/execute`, payload)
       const body = resp.data
       const stdout = (body.stdout ?? '').trim()
       const stderr = body.stderr ?? ''
@@ -221,7 +222,7 @@ export default function ProblemPage() {
       // Mark solved on backend if passed
       if (passed) {
         try {
-          await axios.post('http://localhost:8080/api/submissions/solve', {
+          await axios.post(`${API_BASE_URL}/api/submissions/solve`, {
             problemId: Number(id),
             language: language.toUpperCase(),
             code: sourceCode,
@@ -249,7 +250,7 @@ export default function ProblemPage() {
         code: sourceCode,
         stdin: stdinInput || '',
       }
-      const resp = await axios.post('http://localhost:8080/api/code/execute', payload)
+      const resp = await axios.post(`${API_BASE_URL}/api/code/execute`, payload)
       const body = resp.data
       const stdout = body.stdout ?? ''
       const stderr = body.stderr ?? ''
@@ -275,7 +276,7 @@ export default function ProblemPage() {
     setSaving(true)
     setSaveStatus(null)
     try {
-      await axios.post('http://localhost:8080/api/submissions', {
+      await axios.post(`${API_BASE_URL}/api/submissions`, {
         problemId: Number(id),
         language: language.toUpperCase(),
         code: codeToSave ?? (mode === 'manual' ? code : nodeCode),
@@ -295,7 +296,7 @@ export default function ProblemPage() {
   const loadSavedCode = async (lang) => {
     if (!id || !user) return
     try {
-      const resp = await axios.get('http://localhost:8080/api/submissions', {
+      const resp = await axios.get(`${API_BASE_URL}/api/submissions`, {
         params: { problemId: Number(id), language: lang.toUpperCase() },
       })
       if (resp.data && resp.data.code) {

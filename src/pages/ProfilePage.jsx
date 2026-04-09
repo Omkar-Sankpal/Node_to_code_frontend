@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { gsap } from 'gsap'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 import {
   User, Code2, BookOpen, FolderKanban, TrendingUp,
   CheckCircle2, Target, Flame, BarChart3, Lightbulb,
@@ -364,7 +365,7 @@ export default function ProfilePage() {
     fetchArenaStats()
     fetchArenaHistory()
     // Fetch DSA solved IDs from backend
-    axios.get('http://localhost:8080/api/dsa-submissions/solved', { withCredentials: true })
+    axios.get(`${API_BASE_URL}/api/dsa-submissions/solved`, { withCredentials: true })
       .then((res) => setDsaSolvedIds(new Set((res.data || []).map(String))))
       .catch(() => setDsaSolvedIds(new Set()))
   }, [fetchProblems, fetchProjects, fetchDSAProblems, fetchArenaStats, fetchArenaHistory])

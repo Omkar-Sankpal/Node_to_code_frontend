@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import axios from 'axios'
+import API_BASE_URL from '../apiConfig'
 
 // Axios default: include credentials so browser accepts HttpOnly cookie from backend
 axios.defaults.withCredentials = true
@@ -20,7 +21,7 @@ const useAuthStore = create((set, get) => ({
     }
     set({ loading: true, error: null })
     try {
-      const res = await axios.post('http://localhost:8080/api/users/oauth/google', { token: credential })
+      const res = await axios.post(`${API_BASE_URL}/api/users/oauth/google`, { token: credential })
       const { token, ...user } = res.data || {}
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -37,7 +38,7 @@ const useAuthStore = create((set, get) => ({
   guestLogin: async () => {
     set({ loading: true, error: null })
     try {
-      const res = await axios.post('http://localhost:8080/api/users/guest')
+      const res = await axios.post(`${API_BASE_URL}/api/users/guest`)
       const { token, ...user } = res.data || {}
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -56,7 +57,7 @@ const useAuthStore = create((set, get) => ({
     if (get().initialized) return
     set({ loading: true })
     try {
-      const res = await axios.get('http://localhost:8080/api/users/me')
+      const res = await axios.get(`${API_BASE_URL}/api/users/me`)
       const user = res.data || null
       set({ user, loading: false, initialized: true })
     } catch {
@@ -69,7 +70,7 @@ const useAuthStore = create((set, get) => ({
   fetchCurrentUser: async () => {
     set({ loading: true, error: null })
     try {
-      const res = await axios.get('http://localhost:8080/api/users/me')
+      const res = await axios.get(`${API_BASE_URL}/api/users/me`)
       const user = res.data || null
       set({ user, loading: false })
     } catch (err) {
@@ -80,7 +81,7 @@ const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      await axios.post('http://localhost:8080/api/users/logout')
+      await axios.post(`${API_BASE_URL}/api/users/logout`)
     } catch (e) {
       // ignore
     }
@@ -93,7 +94,7 @@ const useAuthStore = create((set, get) => ({
 
   getApiKeyStatus: async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/users/settings/api-key')
+      const res = await axios.get(`${API_BASE_URL}/api/users/settings/api-key`)
       return res.data // { hasApiKey, maskedKey }
     } catch {
       return { hasApiKey: false, maskedKey: '' }
@@ -102,7 +103,7 @@ const useAuthStore = create((set, get) => ({
 
   updateApiKey: async (apiKey) => {
     try {
-      await axios.put('http://localhost:8080/api/users/settings/api-key', { apiKey })
+      await axios.put(`${API_BASE_URL}/api/users/settings/api-key`, { apiKey })
       return { ok: true }
     } catch (err) {
       return { ok: false, error: err.response?.data?.error || err.message }
@@ -111,7 +112,7 @@ const useAuthStore = create((set, get) => ({
 
   removeApiKey: async () => {
     try {
-      await axios.delete('http://localhost:8080/api/users/settings/api-key')
+      await axios.delete(`${API_BASE_URL}/api/users/settings/api-key`)
       return { ok: true }
     } catch (err) {
       return { ok: false, error: err.response?.data?.error || err.message }
